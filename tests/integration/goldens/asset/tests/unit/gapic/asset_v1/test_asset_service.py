@@ -4080,7 +4080,7 @@ def test_api_key_credentials(client_class, transport_class):
     (AssetServiceClient, transports.AssetServiceGrpcTransport),
     (AssetServiceAsyncClient, transports.AssetServiceGrpcAsyncIOTransport),
 ])
-def test_api_key_credentials(client_class, transport_class):
+def test_api_key_credentials_without_api_key(client_class, transport_class):
     with mock.patch.object(
         google.auth._default, "_get_api_key_credentials", create=True
     ) as get_api_key:

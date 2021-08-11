@@ -6477,7 +6477,7 @@ def test_api_key_credentials(client_class, transport_class):
     (ConfigServiceV2Client, transports.ConfigServiceV2GrpcTransport),
     (ConfigServiceV2AsyncClient, transports.ConfigServiceV2GrpcAsyncIOTransport),
 ])
-def test_api_key_credentials(client_class, transport_class):
+def test_api_key_credentials_without_api_key(client_class, transport_class):
     with mock.patch.object(
         google.auth._default, "_get_api_key_credentials", create=True
     ) as get_api_key:
