@@ -24,6 +24,7 @@ from google.api_core import client_options as client_options_lib  # type: ignore
 from google.api_core import exceptions as core_exceptions         # type: ignore
 from google.api_core import gapic_v1                              # type: ignore
 from google.api_core import retry as retries                      # type: ignore
+from google.auth import _default                                  # type: ignore
 from google.auth import credentials as ga_credentials             # type: ignore
 from google.auth.transport import mtls                            # type: ignore
 from google.auth.transport.grpc import SslCredentials             # type: ignore
@@ -261,6 +262,8 @@ class CloudRedisClient(metaclass=CloudRedisClientMeta):
                 credentials identify the application to the service; if none
                 are specified, the client will attempt to ascertain the
                 credentials from the environment.
+                If API key is provided via ``GOOGLE_API_KEY`` environment
+                variable or client options, credentials will be ignored.
             transport (Union[str, CloudRedisTransport]): The
                 transport to use. If set to None, a transport is chosen
                 automatically.
@@ -346,10 +349,19 @@ class CloudRedisClient(metaclass=CloudRedisClientMeta):
                 )
             self._transport = transport
         else:
+            credentials_file = client_options.credentials_file
+            if hasattr(_default, "_get_api_key_credentials"):
+                api_key_credentials, _ = _default._get_api_key_credentials(getattr(client_options, "api_key", None))
+                if api_key_credentials:
+                    # If API key is provided, override the given credentials and
+                    # credential file path.
+                    credentials = api_key_credentials
+                    credentials_file = None
+
             Transport = type(self).get_transport_class(transport)
             self._transport = Transport(
                 credentials=credentials,
-                credentials_file=client_options.credentials_file,
+                credentials_file=credentials_file,
                 host=api_endpoint,
                 scopes=client_options.scopes,
                 client_cert_source_for_mtls=client_cert_source_func,
