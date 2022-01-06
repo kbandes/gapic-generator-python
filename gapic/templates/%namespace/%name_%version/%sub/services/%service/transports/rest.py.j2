@@ -1,8 +1,3 @@
-{% extends '_base.py.j2' %}
-
-{% block content %}
-
-
 from google.auth.transport.requests import AuthorizedSession  # type: ignore
 import json  # type: ignore
 import grpc  # type: ignore
@@ -26,6 +21,12 @@ try:
     OptionalRetry = Union[retries.Retry, gapic_v1.method._MethodDefault]
 except AttributeError:  # pragma: NO COVER
     OptionalRetry = Union[retries.Retry, object]  # type: ignore
+
+{% extends '_base.py.j2' %}
+
+{% from 'method.py.j2' import api_method_pb2, api_property_pb2 %}
+
+{% block content %}
 
 
 {# TODO(yon-mg): re-add python_import/ python_modules from removed diff/current grpc template code #}
@@ -315,6 +316,35 @@ class {{service.name}}RestTransport({{service.name}}Transport):
 
     {%- endif %}{# unary method #}
     {% endfor %}
+
+
+{% if opts.add_iam_methods %}
+{% if 'google.iam.v1.IAMPolicy.GetIamPolicy' in api.http_options %}
+{% set http_options = api.http_options['google.iam.v1.IAMPolicy.GetIamPolicy'] %}
+{% else %}
+{% set http_options = api.default_iam_http_options['google.iam.v1.IAMPolicy.GetIamPolicy'] %}
+{% endif %}
+{{ api_method_pb2('get_iam_policy', 'iam_policy_pb2.GetIamPolicyRequest', 'policy_pb2.Policy', http_options) }}
+
+
+{% if 'google.iam.v1.IAMPolicy.SetIamPolicy' in api.http_options %}
+{% set http_options = api.http_options['google.iam.v1.IAMPolicy.SetIamPolicy'] %}
+{% else %}
+{% set http_options = api.default_iam_http_options['google.iam.v1.IAMPolicy.SetIamPolicy'] %}
+{% endif %}
+{{ api_method_pb2('set_iam_policy', 'iam_policy_pb2.SetIamPolicyRequest', 'policy_pb2.Policy', http_options) }}
+
+
+{% if 'google.iam.v1.IAMPolicy.TestIamPermissions' in api.http_options %}
+{% set http_options = api.http_options['google.iam.v1.IAMPolicy.TestIamPermissions'] %}
+{% else %}
+{% set http_options = api.default_iam_http_options['google.iam.v1.IAMPolicy.TestIamPermissions'] %}
+{% endif %}
+{{ api_method_pb2('test_iam_permissions', 'iam_policy_pb2.TestIamPermissionsRequest', 'iam_policy_pb2.TestIamPermissionsResponse', http_options) }}
+
+
+{% endif %}{# iam_methods #}
+
     {% for method in service.methods.values()|sort(attribute="name") %}
 
     @property
@@ -328,6 +358,16 @@ class {{service.name}}RestTransport({{service.name}}Transport):
         return stub
 
     {% endfor %}
+
+    {% if opts.add_iam_methods %}
+
+    {{ api_property_pb2('get_iam_policy', 'iam_policy_pb2.GetIamPolicyRequest', 'policy_pb2.Policy') }}
+
+    {{ api_property_pb2('set_iam_policy', 'iam_policy_pb2.SetIamPolicyRequest', 'policy_pb2.Policy') }}
+
+    {{ api_property_pb2('test_iam_permission', 'iam_policy_pb2.TestIamPermissionsRequest', 'iam_policy_pb2.TestIamPermissionsResponse') }}
+
+    {% endif %}
 
     def close(self):
         self._session.close()

@@ -403,6 +403,17 @@ class API:
         return result
 
     @cached_property
+    def default_iam_http_options(self) -> Mapping[str, Sequence[wrappers.HttpRule]]:
+      return {
+          'google.iam.v1.IAMPolicy.GetIamPolicy':
+              [wrappers.HttpRule('post', '/v1/{resource=**}:getIamPolicy', '*')],
+          'google.iam.v1.IAMPolicy.SetIamPolicy':
+              [wrappers.HttpRule('post', '/v1/{resource=**}:setIamPolicy', '*')],
+          'google.iam.v1.IAMPolicy.TestIamPermissions':
+              [wrappers.HttpRule('post', '/v1/{resource=**}:testIamPermissions', '*')],
+      }
+
+    @cached_property
     def subpackages(self) -> Mapping[str, 'API']:
         """Return a map of all subpackages, if any.
 
